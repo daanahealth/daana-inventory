@@ -22,7 +22,13 @@ importers:
       '@daana-health/inventory-react':
         specifier: workspace:*
         version: link:../inventory-react
+      react:
+        specifier: ^18.0.0 || ^19.0.0
+        version: 19.2.7
     devDependencies:
+      '@types/react':
+        specifier: ^18.0.0
+        version: 18.3.31
       typescript:
         specifier: ^5.6.0
         version: 5.9.3

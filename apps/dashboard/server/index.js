@@ -33,6 +33,43 @@ const MIME = {
   '.json': 'application/json',
 };
 
+const STATUS_ALIASES = {
+  started: 'in_progress',
+  starting: 'in_progress',
+  running: 'in_progress',
+  active: 'in_progress',
+  working: 'in_progress',
+  complete: 'done',
+  completed: 'done',
+  finished: 'done',
+  ready: 'pending',
+  queued: 'pending',
+};
+
+function normalize(raw) {
+  // accept loose schemas from agents that haven't read the protocol yet
+  const id = raw.agent_id || raw.agent || raw.id || 'unknown';
+  const status = STATUS_ALIASES[raw.status] || raw.status || 'pending';
+  return {
+    agent_id: id,
+    agent_type: raw.agent_type || raw.type || 'feature',
+    lane: raw.lane || 'meta',
+    repo: raw.repo || null,
+    branch: raw.branch || null,
+    worktree: raw.worktree || null,
+    status,
+    current_task: raw.current_task || raw.task || '—',
+    progress_pct: raw.progress_pct ?? raw.progress ?? 0,
+    started_at: raw.started_at || null,
+    last_update: raw.last_update || raw.ts || raw.timestamp || null,
+    blockers: raw.blockers || [],
+    completed_subtasks: raw.completed_subtasks || [],
+    pending_subtasks: raw.pending_subtasks || [],
+    pr_url: raw.pr_url || null,
+    commit_count: raw.commit_count || 0,
+  };
+}
+
 async function readAgentStatuses() {
   if (!existsSync(STATUS_DIR)) return [];
   const files = await fs.readdir(STATUS_DIR);
@@ -41,7 +78,7 @@ async function readAgentStatuses() {
     if (!file.endsWith('.json')) continue;
     try {
       const raw = await fs.readFile(path.join(STATUS_DIR, file), 'utf-8');
-      agents.push(JSON.parse(raw));
+      agents.push(normalize(JSON.parse(raw)));
     } catch {
       // skip malformed files
     }
