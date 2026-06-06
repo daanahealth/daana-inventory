@@ -1,6 +1,6 @@
 {
   "name": "@daana-health/domain-mass",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "DaanaRX MASS Clinic domain pack: medication attribute schema, DRX codes, classification rules, label renderer.",
   "type": "module",
   "main": "./dist/index.js",
@@ -30,6 +30,7 @@
   },
   "publishConfig": {
     "registry": "https://npm.pkg.github.com",
-    "access": "restricted"
+    "access": "restricted",
+    "provenance": false
   }
 }

@@ -9,9 +9,13 @@
     "typecheck": "pnpm -r typecheck",
     "test": "pnpm -r test",
     "lint": "pnpm -r lint",
-    "dashboard": "node apps/dashboard/server/index.js"
+    "dashboard": "node apps/dashboard/server/index.js",
+    "changeset": "changeset",
+    "version-packages": "changeset version",
+    "release": "pnpm -r --filter \"./packages/*\" build && changeset publish"
   },
   "devDependencies": {
+    "@changesets/cli": "^2.27.9",
     "typescript": "^5.6.0"
   }
 }

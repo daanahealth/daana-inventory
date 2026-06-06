@@ -1,6 +1,6 @@
 {
   "name": "@daana-health/inventory-react",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "Generic React components: schema-driven forms, tables, cart, search.",
   "type": "module",
   "main": "./dist/index.js",
@@ -30,6 +30,7 @@
   },
   "publishConfig": {
     "registry": "https://npm.pkg.github.com",
-    "access": "restricted"
+    "access": "restricted",
+    "provenance": false
   }
 }
