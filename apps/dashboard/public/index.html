@@ -181,6 +181,77 @@
           </div>
         </section>
 
+        <!-- Critical blockers -->
+        <section x-show="(data?.blockers?.length ?? 0) > 0">
+          <div class="flex items-center justify-between mb-3 px-1">
+            <h2 class="text-xs font-semibold uppercase tracking-wider text-ink-500">Critical actions</h2>
+            <div class="text-xs text-ink-500" x-text="`${data?.blockers?.length ?? 0} pending`"></div>
+          </div>
+          <div class="space-y-3">
+            <template x-for="b in data?.blockers ?? []" :key="b.title">
+              <div
+                class="rounded-2xl border p-4 sm:p-5"
+                :class="{
+                  'bg-red-50/70 border-red-200': b.severity === 'high',
+                  'bg-amber-50/70 border-amber-200': b.severity === 'medium',
+                  'bg-ink-50 border-ink-200': b.severity === 'low'
+                }"
+              >
+                <div class="flex items-start justify-between gap-3">
+                  <div class="min-w-0 flex-1">
+                    <div class="flex items-center gap-2">
+                      <span
+                        class="text-[10px] font-bold uppercase px-2 py-0.5 rounded"
+                        :class="{
+                          'bg-red-200/70 text-red-800': b.severity === 'high',
+                          'bg-amber-200/70 text-amber-800': b.severity === 'medium',
+                          'bg-ink-200 text-ink-700': b.severity === 'low'
+                        }"
+                        x-text="b.severity"
+                      ></span>
+                      <div class="text-sm font-semibold text-ink-900" x-text="b.title"></div>
+                    </div>
+                    <p class="mt-1.5 text-[13px] text-ink-700 leading-relaxed" x-text="b.detail"></p>
+                    <p class="mt-2 text-xs text-ink-600">
+                      <span class="font-semibold">Next:</span> <span x-text="b.action"></span>
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </template>
+          </div>
+        </section>
+
+        <!-- MVP module readiness -->
+        <section>
+          <div class="flex items-center justify-between mb-3 px-1">
+            <h2 class="text-xs font-semibold uppercase tracking-wider text-ink-500">MVP modules</h2>
+            <div class="text-xs text-ink-500">
+              <span x-text="(data?.modules ?? []).filter(m => m.ready).length"></span>/<span x-text="(data?.modules ?? []).length"></span> ready
+            </div>
+          </div>
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+            <template x-for="m in data?.modules ?? []" :key="m.name">
+              <div
+                class="rounded-xl glass card-hover p-3"
+                :class="m.ready ? 'ring-1 ring-emerald-100' : 'opacity-70'"
+              >
+                <div class="flex items-center justify-between">
+                  <div class="text-sm font-semibold" x-text="m.name"></div>
+                  <span
+                    class="h-2 w-2 rounded-full"
+                    :class="m.ready ? 'bg-emerald-500' : 'bg-ink-300'"
+                  ></span>
+                </div>
+                <div class="mt-1 text-[11px] text-ink-500 font-mono truncate" x-text="m.branch"></div>
+                <div class="mt-0.5 text-[10px] text-ink-400">
+                  <span x-text="m.commits"></span> commit<span x-show="m.commits !== 1">s</span>
+                </div>
+              </div>
+            </template>
+          </div>
+        </section>
+
         <!-- Repos -->
         <section>
           <h2 class="px-1 text-xs font-semibold uppercase tracking-wider text-ink-500 mb-3">Repositories</h2>
@@ -213,6 +284,46 @@
                 </template>
               </div>
             </template>
+          </div>
+        </section>
+
+        <!-- Feature branches -->
+        <section>
+          <div class="flex items-center justify-between mb-3 px-1">
+            <h2 class="text-xs font-semibold uppercase tracking-wider text-ink-500">Feature branches</h2>
+            <div class="text-xs text-ink-500" x-text="`${(data?.branches ?? []).filter(b => !b.is_base).length} ready`"></div>
+          </div>
+          <div class="rounded-2xl glass overflow-hidden">
+            <div class="overflow-x-auto">
+              <table class="min-w-full text-sm">
+                <thead class="bg-ink-50/60 text-[11px] uppercase tracking-wide text-ink-500">
+                  <tr>
+                    <th class="text-left font-semibold px-4 py-2.5">Branch</th>
+                    <th class="text-left font-semibold px-3 py-2.5">Repo</th>
+                    <th class="text-right font-semibold px-3 py-2.5">+commits</th>
+                    <th class="text-left font-semibold px-3 py-2.5 hidden md:table-cell">Last commit</th>
+                    <th class="text-right font-semibold px-4 py-2.5 hidden sm:table-cell">When</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-ink-100">
+                  <template x-for="b in (data?.branches ?? []).filter(b => !b.is_base)" :key="b.repo + ':' + b.branch">
+                    <tr class="hover:bg-brand-50/30 transition-colors">
+                      <td class="px-4 py-2.5 font-mono text-[12px] text-ink-800" x-text="b.branch"></td>
+                      <td class="px-3 py-2.5 text-[12px] text-ink-600" x-text="b.repo"></td>
+                      <td class="px-3 py-2.5 text-right">
+                        <span
+                          class="inline-flex items-center justify-center min-w-[2rem] px-2 py-0.5 rounded-md text-[11px] font-semibold"
+                          :class="b.commits_ahead > 0 ? 'bg-brand-50 text-brand-700' : 'bg-ink-100 text-ink-500'"
+                          x-text="b.commits_ahead"
+                        ></span>
+                      </td>
+                      <td class="px-3 py-2.5 text-[12px] text-ink-600 hidden md:table-cell truncate max-w-md" x-text="b.last_subject"></td>
+                      <td class="px-4 py-2.5 text-right text-[11px] text-ink-400 font-mono hidden sm:table-cell" x-text="b.last_age"></td>
+                    </tr>
+                  </template>
+                </tbody>
+              </table>
+            </div>
           </div>
         </section>
 
@@ -288,6 +399,29 @@
                   </template>
                 </div>
               </div>
+            </template>
+          </div>
+        </section>
+
+        <!-- Documents -->
+        <section>
+          <h2 class="px-1 text-xs font-semibold uppercase tracking-wider text-ink-500 mb-3">Documents</h2>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <template x-for="d in data?.docs ?? []" :key="d.href">
+              <a
+                :href="d.href"
+                target="_blank"
+                rel="noopener"
+                class="rounded-2xl glass card-hover p-4 block transition-colors"
+                :class="d.exists ? '' : 'opacity-50 pointer-events-none'"
+              >
+                <div class="flex items-center justify-between gap-2">
+                  <div class="text-sm font-semibold text-ink-800" x-text="d.label"></div>
+                  <svg x-show="d.exists" class="h-3.5 w-3.5 text-ink-400 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+                  <span x-show="!d.exists" class="text-[10px] text-ink-400">missing</span>
+                </div>
+                <div class="mt-1.5 text-[12px] text-ink-500 leading-snug" x-text="d.description"></div>
+              </a>
             </template>
           </div>
         </section>
