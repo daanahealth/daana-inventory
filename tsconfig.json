@@ -1,0 +1,8 @@
+{
+  "files": [],
+  "references": [
+    { "path": "./packages/inventory-core" },
+    { "path": "./packages/inventory-react" },
+    { "path": "./packages/domain-mass" }
+  ]
+}

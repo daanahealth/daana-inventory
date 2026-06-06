@@ -1,0 +1,10 @@
+{
+  "name": "@daana-health/dashboard",
+  "private": true,
+  "version": "0.0.1",
+  "type": "module",
+  "scripts": {
+    "start": "node server/index.js",
+    "dev": "node server/index.js"
+  }
+}

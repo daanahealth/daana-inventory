@@ -1,0 +1,444 @@
+<!doctype html>
+<html lang="en" class="h-full">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#0fb5b3" />
+    <title>DaanaRX — Build Status</title>
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%230fb5b3'/%3E%3Cpath d='M9 20V12h5a4 4 0 110 8H9zm2-2h3a2 2 0 100-4h-3v4z' fill='white'/%3E%3C/svg%3E" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: {
+              sans: ['Inter', 'system-ui', 'sans-serif'],
+              mono: ['JetBrains Mono', 'ui-monospace', 'monospace'],
+            },
+            colors: {
+              brand: {
+                50: '#eefbfb',
+                100: '#d4f5f5',
+                200: '#aeebeb',
+                300: '#7ddcdc',
+                400: '#3fc7c7',
+                500: '#0fb5b3',
+                600: '#0a9595',
+                700: '#0e7575',
+                800: '#125c5c',
+                900: '#0f4a4a',
+              },
+              ink: {
+                50: '#f7f9fb',
+                100: '#eef2f6',
+                200: '#dbe4ed',
+                300: '#bccddd',
+                400: '#94aac4',
+                500: '#6f88a8',
+                600: '#536e8c',
+                700: '#43586f',
+                800: '#384a5e',
+                900: '#1f2937',
+                950: '#0e1620',
+              },
+            },
+            keyframes: {
+              pulseDot: {
+                '0%, 100%': { transform: 'scale(1)', opacity: '1' },
+                '50%': { transform: 'scale(1.4)', opacity: '0.5' },
+              },
+              shimmer: {
+                '0%': { backgroundPosition: '-200% 0' },
+                '100%': { backgroundPosition: '200% 0' },
+              },
+            },
+            animation: {
+              pulseDot: 'pulseDot 1.6s ease-in-out infinite',
+              shimmer: 'shimmer 2.5s linear infinite',
+            },
+          },
+        },
+      };
+    </script>
+    <style>
+      html {
+        font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+        -webkit-font-smoothing: antialiased;
+      }
+      body {
+        background:
+          radial-gradient(1200px 600px at 80% -10%, rgba(15, 181, 179, 0.08), transparent 60%),
+          radial-gradient(900px 500px at 0% 0%, rgba(15, 181, 179, 0.04), transparent 60%),
+          linear-gradient(180deg, #ffffff 0%, #f7f9fb 100%);
+        min-height: 100vh;
+      }
+      .glass {
+        background: rgba(255, 255, 255, 0.7);
+        backdrop-filter: saturate(160%) blur(12px);
+        -webkit-backdrop-filter: saturate(160%) blur(12px);
+        border: 1px solid rgba(219, 228, 237, 0.6);
+      }
+      .card-hover {
+        transition: transform 220ms cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 220ms ease, border-color 220ms ease;
+      }
+      .card-hover:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 12px 30px -10px rgba(15, 90, 90, 0.15);
+        border-color: rgba(15, 181, 179, 0.4);
+      }
+      .progress-shimmer {
+        background-image: linear-gradient(
+          110deg,
+          rgba(255, 255, 255, 0) 30%,
+          rgba(255, 255, 255, 0.6) 50%,
+          rgba(255, 255, 255, 0) 70%
+        );
+        background-size: 200% 100%;
+      }
+      .scroll-fade {
+        mask-image: linear-gradient(to bottom, black 90%, transparent 100%);
+        -webkit-mask-image: linear-gradient(to bottom, black 90%, transparent 100%);
+      }
+      [x-cloak] {
+        display: none !important;
+      }
+    </style>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.1/dist/cdn.min.js"></script>
+  </head>
+  <body class="font-sans text-ink-900">
+    <div x-data="dashboard()" x-init="boot()" x-cloak class="min-h-screen">
+      <!-- Header -->
+      <header class="sticky top-0 z-20 glass">
+        <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <div class="h-9 w-9 rounded-xl bg-gradient-to-br from-brand-400 to-brand-600 flex items-center justify-center shadow-sm">
+              <span class="text-white font-bold text-lg leading-none">D</span>
+            </div>
+            <div>
+              <div class="text-sm font-semibold tracking-tight">DaanaRX</div>
+              <div class="text-xs text-ink-500 -mt-0.5">MASS MVP · Build Status</div>
+            </div>
+          </div>
+          <div class="flex items-center gap-3">
+            <div class="hidden sm:flex items-center gap-2 text-xs text-ink-500">
+              <span class="relative flex h-2 w-2">
+                <span class="animate-pulseDot absolute inline-flex h-full w-full rounded-full bg-brand-400"></span>
+                <span class="relative inline-flex h-2 w-2 rounded-full bg-brand-500"></span>
+              </span>
+              Live · refreshed <span x-text="relativeTime(lastFetchAt)"></span>
+            </div>
+            <div class="text-xs font-mono text-ink-400" x-text="clock"></div>
+          </div>
+        </div>
+      </header>
+
+      <main class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-6 sm:py-8 space-y-6">
+        <!-- Summary metrics -->
+        <section class="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
+          <template x-for="m in metrics" :key="m.label">
+            <div class="rounded-2xl glass card-hover p-4 sm:p-5">
+              <div class="flex items-center justify-between">
+                <div class="text-xs font-medium text-ink-500 uppercase tracking-wide" x-text="m.label"></div>
+                <div class="h-7 w-7 rounded-lg flex items-center justify-center" :class="m.iconBg">
+                  <svg class="h-4 w-4" :class="m.iconColor" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" x-html="m.icon"></svg>
+                </div>
+              </div>
+              <div class="mt-2 flex items-baseline gap-2">
+                <div class="text-3xl font-semibold tracking-tight" x-text="m.value"></div>
+                <div class="text-xs text-ink-500" x-text="m.sub"></div>
+              </div>
+            </div>
+          </template>
+        </section>
+
+        <!-- Overall progress -->
+        <section class="rounded-2xl glass p-5 sm:p-6">
+          <div class="flex flex-wrap items-end justify-between gap-2">
+            <div>
+              <div class="text-xs font-medium uppercase tracking-wide text-ink-500">Overall progress</div>
+              <div class="mt-1 text-2xl sm:text-3xl font-semibold tracking-tight">
+                <span x-text="data?.summary?.overall_progress ?? 0"></span>%
+              </div>
+            </div>
+            <div class="text-xs text-ink-500">
+              <span x-text="(data?.summary?.counts?.done ?? 0)"></span> of
+              <span x-text="(data?.summary?.counts?.total ?? 0)"></span> agents complete
+            </div>
+          </div>
+          <div class="mt-4 h-3 w-full rounded-full bg-ink-100 overflow-hidden relative">
+            <div
+              class="h-full rounded-full bg-gradient-to-r from-brand-400 to-brand-600 transition-all duration-700 ease-out relative"
+              :style="`width: ${data?.summary?.overall_progress ?? 0}%`"
+            >
+              <div class="absolute inset-0 progress-shimmer animate-shimmer rounded-full"></div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Repos -->
+        <section>
+          <h2 class="px-1 text-xs font-semibold uppercase tracking-wider text-ink-500 mb-3">Repositories</h2>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-3 sm:gap-4">
+            <template x-for="repo in data?.repos ?? []" :key="repo.name">
+              <div class="rounded-2xl glass card-hover p-4 sm:p-5">
+                <div class="flex items-start justify-between">
+                  <div>
+                    <div class="text-sm font-semibold" x-text="repo.name"></div>
+                    <div class="text-xs text-ink-500 mt-0.5 capitalize" x-text="repo.lane"></div>
+                  </div>
+                  <span
+                    class="text-[10px] font-medium px-2 py-1 rounded-md"
+                    :class="repo.exists ? 'bg-brand-50 text-brand-700' : 'bg-ink-100 text-ink-500'"
+                    x-text="repo.exists ? 'active' : 'missing'"
+                  ></span>
+                </div>
+                <template x-if="repo.git">
+                  <div class="mt-3 space-y-1.5">
+                    <div class="flex items-center gap-1.5 text-xs">
+                      <svg class="h-3.5 w-3.5 text-ink-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M6 3v12m0 0a3 3 0 100 6 3 3 0 000-6zm12-9a3 3 0 11-6 0 3 3 0 016 0zm0 0v6a3 3 0 01-3 3h-3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                      <span class="font-mono text-ink-700" x-text="repo.git.branch"></span>
+                      <span x-show="repo.git.dirty" class="text-[10px] px-1.5 py-0.5 rounded bg-amber-100 text-amber-700 font-medium">dirty</span>
+                    </div>
+                    <div class="text-xs text-ink-500 truncate" x-text="repo.git.last_commit_subject"></div>
+                    <div class="text-[11px] font-mono text-ink-400">
+                      <span x-text="repo.git.last_commit_sha"></span> · <span x-text="repo.git.last_commit_age"></span>
+                    </div>
+                  </div>
+                </template>
+              </div>
+            </template>
+          </div>
+        </section>
+
+        <!-- Agent board -->
+        <section>
+          <div class="flex items-center justify-between mb-3 px-1">
+            <h2 class="text-xs font-semibold uppercase tracking-wider text-ink-500">Agents</h2>
+            <div class="text-xs text-ink-500" x-text="`${data?.summary?.counts?.total ?? 0} total`"></div>
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-5 gap-3 sm:gap-4">
+            <template x-for="col in columns" :key="col.key">
+              <div class="rounded-2xl bg-ink-50/60 border border-ink-100 p-3 min-h-[200px]">
+                <div class="flex items-center justify-between px-1 mb-2">
+                  <div class="flex items-center gap-2">
+                    <span class="h-2 w-2 rounded-full" :class="col.dot"></span>
+                    <h3 class="text-xs font-semibold uppercase tracking-wide text-ink-600" x-text="col.title"></h3>
+                  </div>
+                  <span class="text-xs text-ink-500" x-text="agentsByStatus(col.key).length"></span>
+                </div>
+                <div class="space-y-2.5">
+                  <template x-if="agentsByStatus(col.key).length === 0">
+                    <div class="text-xs text-ink-400 px-1 py-3 text-center italic">—</div>
+                  </template>
+                  <template x-for="a in agentsByStatus(col.key)" :key="a.agent_id">
+                    <div class="rounded-xl bg-white border border-ink-200 p-3 card-hover">
+                      <div class="flex items-start justify-between gap-2">
+                        <div class="min-w-0">
+                          <div class="text-sm font-semibold truncate" x-text="a.agent_id"></div>
+                          <div class="text-[11px] text-ink-500 truncate" x-text="a.current_task || '—'"></div>
+                        </div>
+                        <span
+                          class="text-[10px] font-medium px-1.5 py-0.5 rounded shrink-0"
+                          :class="laneClass(a.lane)"
+                          x-text="a.lane"
+                        ></span>
+                      </div>
+                      <template x-if="a.status === 'in_progress'">
+                        <div class="mt-2.5">
+                          <div class="h-1.5 w-full rounded-full bg-ink-100 overflow-hidden">
+                            <div
+                              class="h-full rounded-full bg-gradient-to-r from-brand-400 to-brand-600 transition-all duration-500"
+                              :style="`width: ${a.progress_pct ?? 0}%`"
+                            ></div>
+                          </div>
+                          <div class="mt-1 flex items-center justify-between text-[10px] text-ink-500">
+                            <span x-text="(a.progress_pct ?? 0) + '%'"></span>
+                            <span x-text="'updated ' + relativeTime(a.last_update)"></span>
+                          </div>
+                        </div>
+                      </template>
+                      <template x-if="a.branch">
+                        <div class="mt-2 flex items-center gap-1.5 text-[11px] text-ink-500 font-mono truncate">
+                          <svg class="h-3 w-3 shrink-0 text-ink-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M6 3v12m0 0a3 3 0 100 6 3 3 0 000-6zm12-9a3 3 0 11-6 0 3 3 0 016 0zm0 0v6a3 3 0 01-3 3h-3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                          <span class="truncate" x-text="a.branch"></span>
+                        </div>
+                      </template>
+                      <template x-if="a.blockers && a.blockers.length">
+                        <div class="mt-2 rounded-md bg-amber-50 border border-amber-200 px-2 py-1 text-[11px] text-amber-800">
+                          <span class="font-semibold">Blocked:</span> <span x-text="a.blockers.join(', ')"></span>
+                        </div>
+                      </template>
+                      <template x-if="a.pr_url">
+                        <a
+                          :href="a.pr_url"
+                          target="_blank"
+                          rel="noopener"
+                          class="mt-2 inline-flex items-center gap-1 text-[11px] text-brand-700 font-medium hover:text-brand-800"
+                        >
+                          View PR ↗
+                        </a>
+                      </template>
+                    </div>
+                  </template>
+                </div>
+              </div>
+            </template>
+          </div>
+        </section>
+
+        <!-- Activity feed -->
+        <section class="rounded-2xl glass p-5 sm:p-6">
+          <div class="flex items-center justify-between mb-3">
+            <h2 class="text-xs font-semibold uppercase tracking-wider text-ink-500">Activity</h2>
+            <span class="text-xs text-ink-500" x-text="(data?.events?.length ?? 0) + ' events'"></span>
+          </div>
+          <div class="max-h-80 overflow-y-auto scroll-fade pr-1">
+            <ul class="space-y-2.5">
+              <template x-if="!data?.events?.length">
+                <li class="text-sm text-ink-400 italic py-6 text-center">No activity yet — waiting for agents to start.</li>
+              </template>
+              <template x-for="e in data?.events ?? []" :key="e.ts + (e.agent_id || '') + (e.msg || '')">
+                <li class="flex items-start gap-3 text-sm">
+                  <div class="mt-1.5 h-2 w-2 rounded-full shrink-0" :class="eventDot(e.type)"></div>
+                  <div class="min-w-0 flex-1">
+                    <div class="flex items-baseline justify-between gap-2">
+                      <span class="font-medium text-ink-800 truncate" x-text="e.agent_id || 'system'"></span>
+                      <span class="text-[11px] text-ink-400 font-mono shrink-0" x-text="relativeTime(e.ts)"></span>
+                    </div>
+                    <div class="text-ink-600 text-[13px]" x-text="e.msg"></div>
+                  </div>
+                </li>
+              </template>
+            </ul>
+          </div>
+        </section>
+
+        <footer class="text-center text-xs text-ink-400 pt-2 pb-6">
+          DaanaRX · Daana Health · build dashboard ·
+          <span class="font-mono">api/status</span> polled every 3s
+        </footer>
+      </main>
+    </div>
+
+    <script>
+      function dashboard() {
+        return {
+          data: null,
+          lastFetchAt: null,
+          clock: '',
+          columns: [
+            { key: 'pending', title: 'Pending', dot: 'bg-ink-300' },
+            { key: 'in_progress', title: 'In Progress', dot: 'bg-brand-500 animate-pulseDot' },
+            { key: 'qa', title: 'QA', dot: 'bg-amber-400' },
+            { key: 'blocked', title: 'Blocked', dot: 'bg-red-400' },
+            { key: 'done', title: 'Done', dot: 'bg-emerald-500' },
+          ],
+          get metrics() {
+            const c = this.data?.summary?.counts ?? {};
+            return [
+              {
+                label: 'Total agents',
+                value: c.total ?? 0,
+                sub: '',
+                iconBg: 'bg-brand-50',
+                iconColor: 'text-brand-700',
+                icon: '<path d="M12 4.5v15m7.5-7.5h-15" stroke-linecap="round" stroke-linejoin="round" />',
+              },
+              {
+                label: 'In progress',
+                value: c.in_progress ?? 0,
+                sub: 'building',
+                iconBg: 'bg-brand-50',
+                iconColor: 'text-brand-700',
+                icon: '<path d="M4 12a8 8 0 0116 0M20 12a8 8 0 01-16 0" stroke-linecap="round"/>',
+              },
+              {
+                label: 'Completed',
+                value: c.done ?? 0,
+                sub: 'merged',
+                iconBg: 'bg-emerald-50',
+                iconColor: 'text-emerald-700',
+                icon: '<path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round"/>',
+              },
+              {
+                label: 'Blocked',
+                value: c.blocked ?? 0,
+                sub: 'needs attention',
+                iconBg: 'bg-amber-50',
+                iconColor: 'text-amber-700',
+                icon: '<path d="M12 9v3.75M12 18.75h.008v.008H12v-.008zM12 4.5a7.5 7.5 0 100 15 7.5 7.5 0 000-15z" stroke-linecap="round" stroke-linejoin="round"/>',
+              },
+            ];
+          },
+          agentsByStatus(status) {
+            return (this.data?.agents ?? []).filter((a) => a.status === status);
+          },
+          laneClass(lane) {
+            const m = {
+              foundation: 'bg-purple-50 text-purple-700',
+              platform: 'bg-indigo-50 text-indigo-700',
+              backend: 'bg-sky-50 text-sky-700',
+              frontend: 'bg-brand-50 text-brand-700',
+              domain: 'bg-pink-50 text-pink-700',
+              meta: 'bg-ink-100 text-ink-700',
+            };
+            return m[lane] || 'bg-ink-100 text-ink-700';
+          },
+          eventDot(type) {
+            const m = {
+              started: 'bg-brand-500',
+              progress: 'bg-brand-300',
+              commit: 'bg-emerald-500',
+              pr_opened: 'bg-indigo-500',
+              pr_merged: 'bg-emerald-600',
+              blocked: 'bg-amber-500',
+              unblocked: 'bg-brand-500',
+              qa_pass: 'bg-emerald-500',
+              qa_fail: 'bg-red-500',
+              done: 'bg-emerald-600',
+              error: 'bg-red-500',
+            };
+            return m[type] || 'bg-ink-400';
+          },
+          relativeTime(iso) {
+            if (!iso) return '—';
+            const d = new Date(iso);
+            const s = Math.max(0, Math.floor((Date.now() - d.getTime()) / 1000));
+            if (s < 5) return 'just now';
+            if (s < 60) return s + 's ago';
+            const m = Math.floor(s / 60);
+            if (m < 60) return m + 'm ago';
+            const h = Math.floor(m / 60);
+            if (h < 24) return h + 'h ago';
+            return Math.floor(h / 24) + 'd ago';
+          },
+          async fetchStatus() {
+            try {
+              const r = await fetch('/api/status', { cache: 'no-store' });
+              this.data = await r.json();
+              this.lastFetchAt = new Date().toISOString();
+            } catch (e) {
+              // keep prior data on failure
+            }
+          },
+          tickClock() {
+            const d = new Date();
+            this.clock = d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+          },
+          boot() {
+            this.tickClock();
+            this.fetchStatus();
+            setInterval(() => this.tickClock(), 1000);
+            setInterval(() => this.fetchStatus(), 3000);
+          },
+        };
+      }
+    </script>
+  </body>
+</html>

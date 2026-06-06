@@ -1,0 +1,31 @@
+{
+  "name": "@daana-health/domain-mass",
+  "version": "0.0.1",
+  "description": "DaanaRX MASS Clinic domain pack: medication attribute schema, DRX codes, classification rules, label renderer.",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": ["dist"],
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc --noEmit",
+    "test": "echo \"(tests pending)\""
+  },
+  "dependencies": {
+    "@daana-health/inventory-core": "workspace:*",
+    "@daana-health/inventory-react": "workspace:*"
+  },
+  "devDependencies": {
+    "typescript": "^5.6.0"
+  },
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com",
+    "access": "restricted"
+  }
+}

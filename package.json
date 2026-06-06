@@ -1,0 +1,17 @@
+{
+  "name": "daana-inventory",
+  "private": true,
+  "version": "0.0.0",
+  "description": "Generic inventory management platform. DaanaRX MASS is the first domain pack.",
+  "packageManager": "pnpm@9.0.0",
+  "scripts": {
+    "build": "pnpm -r build",
+    "typecheck": "pnpm -r typecheck",
+    "test": "pnpm -r test",
+    "lint": "pnpm -r lint",
+    "dashboard": "node apps/dashboard/server/index.js"
+  },
+  "devDependencies": {
+    "typescript": "^5.6.0"
+  }
+}
