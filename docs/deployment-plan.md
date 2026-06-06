@@ -374,3 +374,125 @@ rollback target.
 ---
 
 **End of plan. No deployments have been executed. Awaiting user review.**
+
+---
+
+## 11. Inventory-core distribution (GitHub Packages wiring)
+
+*Added 2026-06-06 by the `github-packages-setup` agent on
+`feature/publish-workflow` in `daana-inventory`.*
+
+This section directly resolves [§2 build risk](#2-local-iac-state--daanarx-backendrenderyaml)
+and [§9 Q4](#9-open-questions): how the BE repos consume
+`@daana-health/inventory-core` on Render once published.
+
+### What was added to `daana-inventory`
+
+- `.npmrc` at the repo root pinning `@daana-health` → `https://npm.pkg.github.com`,
+  authenticated via `${GITHUB_TOKEN}`.
+- `.github/workflows/publish.yml` — on push to `main` when a
+  `packages/*/package.json` version changes, builds and publishes the affected
+  package with `pnpm publish --no-git-checks --access restricted` using
+  `actions/setup-node@v4` with `registry-url: 'https://npm.pkg.github.com'`.
+- `.github/workflows/ci.yml` — runs `pnpm install`, `pnpm -r build`,
+  `pnpm -r typecheck` on every PR touching `packages/**`.
+- `.changeset/config.json` configured with `access: "restricted"` and
+  `ignore: ["@daana-health/dashboard"]` so the internal dashboard app is
+  never versioned alongside the engine packages.
+- `pnpm release` script at root that runs `changeset publish`.
+- Versions on all three packages bumped from `0.0.1` → `0.1.0` (still
+  pre-release but signals first publishable cut).
+- `publishConfig` now includes `"provenance": false` on each package
+  (GitHub Packages does not support the same provenance flow npmjs.com does
+  for public packages — set explicitly to suppress any client default).
+
+### Prerequisites the user must satisfy before this works end-to-end
+
+1. **Create the GitHub org `daana-health`** and move `daana-inventory` (and
+   ideally the backend repos) under it. Until the org exists, the publish
+   workflow will 401.
+2. Confirm the default `GITHUB_TOKEN` on the `daana-inventory` repo has
+   `write:packages` permission. The workflow already requests it via
+   `permissions: { packages: write }`.
+3. Push a `.changeset/*.md` describing the initial `0.1.0` cut so the
+   release flow has a first artifact to publish.
+
+### Render-build-time wiring for `DaanaRx-Backend`
+
+Today every service in `DaanaRx-Backend/{gateway,services/*}` declares
+`"@daana-health/inventory-core": "file:../../../daana-inventory/packages/inventory-core"`.
+That works locally because the sibling `daana-inventory` worktree is present;
+**on Render it will fail** (the build container only sees one repo).
+
+Two viable strategies — recommendation: **option (a)**.
+
+#### (a) Recommended — consume from GitHub Packages
+
+After the three `@daana-health/*` packages publish at `0.1.0`:
+
+1. In `DaanaRx-Backend`, add a `.npmrc` at the repo root (and one in each
+   service subdirectory that runs its own `npm install` on Render —
+   currently every `services/*` and `gateway/`):
+
+   ```
+   @daana-health:registry=https://npm.pkg.github.com
+   //npm.pkg.github.com/:_authToken=${NPM_AUTH_TOKEN}
+   ```
+
+2. Rewrite the `file:` deps in every service `package.json` to pinned
+   versions:
+
+   ```jsonc
+   "@daana-health/inventory-core": "^0.1.0"
+   ```
+
+3. In **every** Render service for the BE (gateway + 4 services), add an
+   env var:
+
+   ```yaml
+   - key: NPM_AUTH_TOKEN
+     sync: false   # set the PAT value in the dashboard
+   ```
+
+   The PAT must have `read:packages` scope and access to the
+   `daana-health` org.
+
+4. Render auto-injects env vars into `npm install` since
+   [Render env vars are present at build time](https://render.com/docs/configure-environment-variables).
+   No build-command change is needed.
+
+5. Verify locally first by `rm -rf node_modules && NPM_AUTH_TOKEN=<PAT> npm
+   install` from a service directory **without** the sibling
+   `daana-inventory` directory present.
+
+#### (b) Fallback — vendor the dist
+
+If for any reason GitHub Packages can't be wired (org not created in time,
+PAT distribution friction, etc.), check the built
+`packages/inventory-core/dist` (and `inventory-react/dist`,
+`domain-mass/dist`) into `DaanaRx-Backend/lib/inventory-core/` (etc.) and
+rewrite the `file:` paths to `file:../../lib/inventory-core`. Acceptable as a
+bridge for the MVP deploy; do not let it persist past the first sprint.
+
+### Sequencing relative to [§6 Deploy Sequence](#6-recommended-deploy-sequence)
+
+- **Step 0.3** is where this decision lives. Pick (a). The `.npmrc` plus
+  PAT secret is fully prepared on the inventory side; the BE-side edits
+  (`.npmrc` + env var + dep rewrite) are the only remaining work.
+- **Step 3** (solve the `file:` dep build problem) becomes a thin patch
+  to `feature/platform-integration`: drop the `file:` paths, add `.npmrc`,
+  configure the `NPM_AUTH_TOKEN` secret in Render.
+
+### Caveats
+
+- GitHub Packages restricted packages **cannot be installed by anonymous
+  CI**. Every Render service plus any future CI that touches the BE must
+  carry the `NPM_AUTH_TOKEN`. Treat the PAT like a deploy key.
+- Token rotation: GitHub PATs (classic) are user-owned. Prefer a
+  **fine-grained PAT** scoped to the `daana-health` org with `Packages:
+  read` only, owned by a bot account so rotation isn't blocked on a single
+  human leaving.
+- `workspace:*` ranges in `packages/*/package.json` are automatically
+  rewritten by changesets/pnpm at publish time — no manual replacement
+  needed before pushing the publish workflow.
+

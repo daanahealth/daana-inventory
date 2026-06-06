@@ -1,6 +1,6 @@
 {
   "name": "@daana-health/inventory-core",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "Generic inventory engine: types, state machine, FEFO sort, code generators, validators.",
   "type": "module",
   "main": "./dist/index.js",
@@ -22,6 +22,7 @@
   },
   "publishConfig": {
     "registry": "https://npm.pkg.github.com",
-    "access": "restricted"
+    "access": "restricted",
+    "provenance": false
   }
 }

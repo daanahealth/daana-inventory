@@ -1,0 +1,71 @@
+name: Publish to GitHub Packages
+
+# Publishes @daana-health/* packages to GitHub Packages whenever a push to main
+# changes the `version` field in any packages/*/package.json. Designed to be
+# driven by changesets: a `pnpm release` (or a Version Packages PR merge) bumps
+# the versions in packages/*/package.json, which then triggers this workflow.
+#
+# IMPORTANT: This workflow assumes the GitHub org `daana-health` exists and the
+# repo lives under it. Until then this is a no-op; pushing to main without the
+# org configured will fail with a 401 on `pnpm publish`. See README "Publishing".
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'packages/*/package.json'
+  workflow_dispatch:
+
+concurrency:
+  group: publish-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          registry-url: 'https://npm.pkg.github.com'
+          scope: '@daana-health'
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build packages
+        run: pnpm -r --filter "./packages/*" build
+
+      - name: Publish @daana-health/inventory-core
+        run: pnpm publish --filter @daana-health/inventory-core --no-git-checks --access restricted
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Publish @daana-health/inventory-react
+        run: pnpm publish --filter @daana-health/inventory-react --no-git-checks --access restricted
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Publish @daana-health/domain-mass
+        run: pnpm publish --filter @daana-health/domain-mass --no-git-checks --access restricted
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
