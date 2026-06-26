@@ -59,12 +59,32 @@ import {
 /**
  * Selected DRX code template for the MASS medication item type.
  *
- * Format: `DRX-MASS-{LOCATION}-{counter:05d}`
- * Example: `DRX-MASS-CARDIO1-00042`
+ * NEW (specialty-based) format — adopted per the clinic's request to encode the
+ * specialty location rather than the lot number:
  *
- * The counter is per-location (see ADR §5 and `code_counters` SQL table).
+ *   Format:  `DRX-MASS-{specialty_code}{specialty_num}{med_initial}{dose_initial}{counter:03d}`
+ *   Example: `DRX-MASS-D2ME5001`  (Diabetes-2, Metformin, 500 mg, unit 001)
+ *
+ * The four embedded fields come from `deriveMassCodeAttributes()` in
+ * `specialty-codes.ts` and must be present in `attributes` before render. The
+ * counter is still allocated per-location by the platform (`code_counters`),
+ * which keeps each rendered code unique within a bin.
+ *
+ * Ceiling note: the 3-digit counter caps a bin at 999 units (current busiest
+ * bin ≈ 112). Monitor `code_counters.next_value`; widen to `{counter:04d}` if a
+ * bin approaches the limit.
+ *
+ * Migration note: existing units keep their already-assigned codes — they are
+ * never regenerated. Only new check-ins use this template.
  */
-export const DRX_CODE_TEMPLATE = "DRX-MASS-{LOCATION}-{counter:05d}" as const;
+export const DRX_CODE_TEMPLATE =
+  "DRX-MASS-{attr.specialty_code}{attr.specialty_num}{attr.med_initial}{attr.dose_initial}{counter:03d}" as const;
+
+/**
+ * Previous location-based format, retained for reference and historical codes.
+ * Format: `DRX-MASS-{LOCATION}-{counter:05d}` (e.g. `DRX-MASS-CARDIO1-00042`).
+ */
+export const DRX_CODE_TEMPLATE_LOCATION = "DRX-MASS-{LOCATION}-{counter:05d}" as const;
 
 /**
  * Build a CodeGenerator for the MASS medication item type. The returned
